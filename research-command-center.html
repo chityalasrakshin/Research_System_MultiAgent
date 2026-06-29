@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ─── DESIGN TOKENS ──────────────────────────────────────────────── */
+  :root {
+    --black: #000000;
+    --white: #FFFFFF;
+    --muted: #F2F2F2;
+    --red: #FF3000;
+    --border-width: 2px;
+    --border: var(--border-width) solid var(--black);
+    --font: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur: 150ms;
+  }
+
+  /* ─── RESET ──────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  /* ─── BASE ───────────────────────────────────────────────────────── */
+  body {
+    font-family: var(--font);
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.4;
+    overflow-x: hidden;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='24' height='24' fill='none'/%3E%3Cpath d='M24 0H0M0 24V0' stroke='%23000' stroke-width='0.4' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────────────────────────── */
+  .page-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ────────────────────────────────────────────────────── */
+  .sidebar {
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .sidebar-logo {
+    padding: 2rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo-square {
+    width: 28px;
+    height: 28px;
+    background: var(--red);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .logo-sub {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .sidebar-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 1rem;
+  }
+
+  /* PIPELINE STEPS IN SIDEBAR */
+  .pipeline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: opacity var(--dur) ease;
+  }
+
+  .pipeline-step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    flex-shrink: 0;
+    padding-top: 1px;
+    min-width: 20px;
+  }
+
+  .step-info {}
+
+  .step-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 2px;
+  }
+
+  .step-desc {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.4;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .run-cmd {
+    font-size: 0.65rem;
+    font-family: 'Courier New', monospace;
+    color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+    padding: 8px 12px;
+    display: block;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── MAIN ───────────────────────────────────────────────────────── */
+  .main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── HERO ───────────────────────────────────────────────────────── */
+  .hero {
+    border-bottom: var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 0;
+    min-height: 260px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-content {
+    padding: 3.5rem 3rem 3rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--red);
+    flex-shrink: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 5vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-sub {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #555;
+    max-width: 440px;
+    line-height: 1.6;
+  }
+
+  .hero-composition {
+    width: 320px;
+    border-left: var(--border);
+    height: 100%;
+    min-height: 260px;
+    position: relative;
+    overflow: hidden;
+    background: var(--muted);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='1' fill='%23000' opacity='0.06'/%3E%3C/svg%3E");
+  }
+
+  .comp-shape {
+    position: absolute;
+  }
+
+  .comp-circle-large {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 3px solid var(--black);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .comp-rect-fill {
+    width: 100px;
+    height: 100px;
+    background: var(--red);
+    top: 20px;
+    right: 20px;
+  }
+
+  .comp-rect-outline {
+    width: 70px;
+    height: 70px;
+    border: 3px solid var(--black);
+    bottom: 30px;
+    left: 25px;
+  }
+
+  .comp-line-h {
+    height: 3px;
+    background: var(--black);
+    width: 60%;
+    left: 20%;
+    bottom: 90px;
+  }
+
+  .comp-label {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.3);
+  }
+
+  /* ─── INPUT SECTION ──────────────────────────────────────────────── */
+  .input-section {
+    border-bottom: var(--border);
+    padding: 2.5rem 3rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cline x1='0' y1='24' x2='24' y2='0' stroke='%23000' stroke-width='0.5' opacity='0.025'/%3E%3C/svg%3E");
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-num {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .field-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--black);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  textarea {
+    width: 100%;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--black);
+    background: var(--white);
+    border: var(--border);
+    padding: 1rem;
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color var(--dur) ease;
+    line-height: 1.6;
+  }
+
+  textarea:focus {
+    border-color: var(--red);
+  }
+
+  textarea::placeholder {
+    color: #999;
+  }
+
+  .example-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #777;
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+
+  .example-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: var(--border);
+  }
+
+  .example-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--black);
+    background: var(--white);
+    cursor: pointer;
+    border-bottom: 1px solid var(--black);
+    transition: background var(--dur) ease, color var(--dur) ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.3;
+  }
+
+  .example-item:last-child { border-bottom: none; }
+
+  .example-item::before {
+    content: '→';
+    font-size: 0.75rem;
+    color: var(--red);
+    flex-shrink: 0;
+    transition: transform var(--dur) ease;
+  }
+
+  .example-item:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .example-item:hover::before {
+    color: var(--red);
+    transform: translateX(3px);
+  }
+
+  /* RUN BUTTON */
+  .run-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1.25rem;
+    background: var(--black);
+    color: var(--white);
+    border: var(--border);
+    padding: 1rem 1.5rem;
+    font-family: var(--font);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--dur) ease, color var(--dur) ease, border-color var(--dur) ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .run-btn:hover:not(:disabled) {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .run-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .run-btn-arrow {
+    font-size: 1.1rem;
+    transition: transform var(--dur) ease;
+  }
+
+  .run-btn:hover:not(:disabled) .run-btn-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ─── STATUS BAR ─────────────────────────────────────────────────── */
+  .status-bar {
+    border-bottom: var(--border);
+    padding: 0;
+    background: var(--black);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s var(--ease), padding 0.3s ease;
+  }
+
+  .status-bar.active {
+    max-height: 200px;
+    padding: 1.5rem 3rem;
+  }
+
+  .status-inner {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .status-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status-steps {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .sstep {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    transition: color var(--dur) ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sstep.active { color: var(--white); }
+  .sstep.done { color: rgba(255,255,255,0.5); }
+  .sstep.active::before { content: '●'; color: var(--red); font-size: 0.5rem; }
+  .sstep.done::before { content: '✓'; color: #22c55e; font-size: 0.65rem; }
+
+  /* ─── METRICS STRIP ──────────────────────────────────────────────── */
+  .metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: var(--border);
+  }
+
+  .metric {
+    padding: 1.75rem 2rem;
+    border-right: var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: background var(--dur) ease;
+  }
+
+  .metric:last-child { border-right: none; }
+
+  .metric:hover { background: var(--muted); }
+
+  .metric-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--black);
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-note {
+    font-size: 0.65rem;
+    color: #aaa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .metric-accent {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 0;
+    background: var(--red);
+    transition: width 0.6s var(--ease);
+  }
+
+  .metric.loaded .metric-accent { width: 100%; }
+
+  /* ─── RESULTS ────────────────────────────────────────────────────── */
+  .results-section {
+    padding: 0;
+  }
+
+  /* TABS */
+  .tab-nav {
+    display: flex;
+    border-bottom: var(--border);
+    background: var(--muted);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='1' fill='%23000' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  .tab-btn {
+    padding: 1rem 1.5rem;
+    font-family: var(--font);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-right: 1px solid var(--black);
+    cursor: pointer;
+    color: #666;
+    position: relative;
+    transition: color var(--dur) ease, background var(--dur) ease;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform var(--dur) ease;
+  }
+
+  .tab-btn.active {
+    background: var(--white);
+    color: var(--black);
+  }
+
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn:hover:not(.active) { background: rgba(0,0,0,0.04); color: var(--black); }
+
+  .tab-panel {
+    display: none;
+    padding: 2.5rem 3rem;
+  }
+
+  .tab-panel.active { display: block; }
+
+  .tab-content {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: #222;
+    max-width: 72ch;
+  }
+
+  .tab-content p { margin-bottom: 1rem; }
+  .tab-content h1, .tab-content h2, .tab-content h3 {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .tab-content h1 { font-size: 1.5rem; }
+  .tab-content h2 { font-size: 1.1rem; }
+  .tab-content h3 { font-size: 0.9rem; letter-spacing: 0.1em; }
+  .tab-content ul, .tab-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .tab-content li { margin-bottom: 0.35rem; }
+
+  /* DOWNLOAD */
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2rem;
+    background: var(--black);
+    color: var(--white);
+    border: var(--border);
+    padding: 0.85rem 1.5rem;
+    font-family: var(--font);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--dur) ease, color var(--dur) ease;
+    text-decoration: none;
+  }
+
+  .download-btn:hover { background: var(--red); border-color: var(--red); }
+
+  /* ─── EMPTY STATE ─────────────────────────────────────────────────── */
+  .empty-state {
+    padding: 5rem 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 4rem;
+  }
+
+  .empty-composition {
+    flex-shrink: 0;
+    width: 140px;
+    height: 140px;
+    position: relative;
+  }
+
+  .ec-outer {
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--black);
+  }
+
+  .ec-inner {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: var(--muted);
+    border: 2px solid var(--black);
+  }
+
+  .ec-accent {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: var(--red);
+    bottom: -10px;
+    right: -10px;
+  }
+
+  .empty-text {}
+
+  .empty-eyebrow {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-heading {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    line-height: 0.95;
+    margin-bottom: 1rem;
+    color: var(--black);
+  }
+
+  .empty-body {
+    font-size: 0.87rem;
+    color: #666;
+    line-height: 1.65;
+    max-width: 36ch;
+  }
+
+  /* ─── FOOTER ─────────────────────────────────────────────────────── */
+  .footer {
+    border-top: var(--border);
+    padding: 1.25rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--muted);
+  }
+
+  .footer-note {
+    font-size: 0.62rem;
+    color: #888;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .footer-meta {
+    font-size: 0.62rem;
+    color: #ccc;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ─── ERROR ──────────────────────────────────────────────────────── */
+  .error-banner {
+    margin: 0 3rem 0;
+    border: 2px solid var(--red);
+    background: rgba(255,48,0,0.04);
+    padding: 1rem 1.25rem;
+    display: none;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .error-banner.visible { display: flex; }
+
+  .error-icon {
+    font-size: 1rem;
+    color: var(--red);
+    flex-shrink: 0;
+    font-weight: 900;
+    font-family: monospace;
+    margin-top: 1px;
+  }
+
+  .error-text {
+    font-size: 0.8rem;
+    color: var(--black);
+    line-height: 1.5;
+  }
+
+  .error-text strong {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    display: block;
+    margin-bottom: 4px;
+    color: var(--red);
+  }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .page-grid { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: var(--border);
+    }
+    .hero { grid-template-columns: 1fr; }
+    .hero-composition { display: none; }
+    .hero-content { padding: 2rem 1.5rem; }
+    .input-grid { grid-template-columns: 1fr; }
+    .input-section { padding: 2rem 1.5rem; }
+    .metrics-strip { grid-template-columns: 1fr 1fr; }
+    .metric { border-bottom: var(--border); }
+    .status-bar.active { padding: 1.25rem 1.5rem; }
+    .status-steps { flex-wrap: wrap; gap: 1rem; }
+    .tab-panel { padding: 2rem 1.5rem; }
+    .empty-state { flex-direction: column; padding: 3rem 1.5rem; gap: 2rem; }
+    .footer { padding: 1rem 1.5rem; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    .tab-nav { overflow-x: auto; }
+    .tab-btn { white-space: nowrap; flex-shrink: 0; }
+  }
+
+  @media (max-width: 520px) {
+    .hero h1 { font-size: 2.5rem; }
+    .metrics-strip { grid-template-columns: 1fr; }
+  }
+
+  /* ─── MOTION ─────────────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ─── FOCUS ──────────────────────────────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  /* ─── UTILITY ─────────────────────────────────────────────────────── */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-grid">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" role="complementary" aria-label="Pipeline configuration">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-square" aria-hidden="true"></div>
+        <span class="logo-text">Research<br>Center</span>
+      </div>
+      <div class="logo-sub">Multi-agent pipeline</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pipeline stages</div>
+      <div class="pipeline-step">
+        <span class="step-num">01</span>
+        <div class="step-info">
+          <div class="step-name">Search Agent</div>
+          <div class="step-desc">Finds recent, reliable sources and URLs</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <span class="step-num">02</span>
+        <div class="step-info">
+          <div class="step-name">Reader Agent</div>
+          <div class="step-desc">Scrapes the strongest source for deeper context</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <span class="step-num">03</span>
+        <div class="step-info">
+          <div class="step-name">Writer</div>
+          <div class="step-desc">Synthesizes findings into a structured report</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <span class="step-num">04</span>
+        <div class="step-info">
+          <div class="step-name">Critic</div>
+          <div class="step-desc">Reviews the report and returns quality feedback</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-label" style="margin-bottom: 0.5rem;">Local run</div>
+      <code class="run-cmd">uvicorn app:app --reload --port 8000</code>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" role="main">
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Multi-agent research pipeline</p>
+        <h1>Research<br>Command<br>Center</h1>
+        <p class="hero-sub">Launch web search, source reading, report writing, and critic review from one focused operations dashboard.</p>
+      </div>
+      <div class="hero-composition" aria-hidden="true">
+        <div class="comp-shape comp-circle-large"></div>
+        <div class="comp-shape comp-rect-fill"></div>
+        <div class="comp-shape comp-rect-outline"></div>
+        <div class="comp-shape comp-line-h"></div>
+        <div class="comp-label">v2.0</div>
+      </div>
+    </header>
+
+    <!-- INPUT SECTION -->
+    <section class="input-section" aria-labelledby="run-section-title">
+      <div class="section-header">
+        <span class="section-num">01.</span>
+        <span class="section-title" id="run-section-title">Configure run</span>
+      </div>
+
+      <div class="input-grid">
+        <div>
+          <label class="field-label" for="topic-input">Research topic</label>
+          <textarea
+            id="topic-input"
+            placeholder="Example: Recent advances in retrieval augmented generation evaluation"
+            aria-describedby="topic-hint"
+          ></textarea>
+          <span class="sr-only" id="topic-hint">Use a specific question or theme for better source selection and synthesis.</span>
+          <button class="run-btn" id="run-btn" aria-live="polite">
+            <span id="run-btn-text">Run research pipeline</span>
+            <span class="run-btn-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <div>
+          <span class="example-label">Example topics</span>
+          <ul class="example-list" role="list" aria-label="Example research topics">
+            <li class="example-item" role="button" tabindex="0">AI agents in software engineering</li>
+            <li class="example-item" role="button" tabindex="0">Climate risk modeling for cities</li>
+            <li class="example-item" role="button" tabindex="0">Quantum-safe cryptography adoption</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar" id="status-bar" role="status" aria-live="polite" aria-label="Pipeline progress">
+      <div class="status-inner">
+        <div class="status-spinner" aria-hidden="true"></div>
+        <div class="status-steps">
+          <span class="sstep" id="sstep-1" data-step="1">Search Agent</span>
+          <span class="sstep" id="sstep-2" data-step="2">Reader Agent</span>
+          <span class="sstep" id="sstep-3" data-step="3">Writer</span>
+          <span class="sstep" id="sstep-4" data-step="4">Critic</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR BANNER -->
+    <div class="error-banner" id="error-banner" role="alert">
+      <span class="error-icon">!</span>
+      <div class="error-text">
+        <strong>Pipeline failed</strong>
+        <span id="error-msg">Check the backend configuration, then restart.</span>
+      </div>
+    </div>
+
+    <!-- METRICS STRIP -->
+    <div class="metrics-strip" id="metrics-strip" aria-label="Pipeline output metrics">
+      <div class="metric" id="metric-urls">
+        <div class="metric-label">URLs found</div>
+        <div class="metric-value" id="m-urls">—</div>
+        <div class="metric-note">From search output</div>
+        <div class="metric-accent"></div>
+      </div>
+      <div class="metric" id="metric-scraped">
+        <div class="metric-label">Scraped words</div>
+        <div class="metric-value" id="m-scraped">—</div>
+        <div class="metric-note">Reader context</div>
+        <div class="metric-accent"></div>
+      </div>
+      <div class="metric" id="metric-report">
+        <div class="metric-label">Report words</div>
+        <div class="metric-value" id="m-report">—</div>
+        <div class="metric-note">Final draft</div>
+        <div class="metric-accent"></div>
+      </div>
+      <div class="metric" id="metric-feedback">
+        <div class="metric-label">Feedback words</div>
+        <div class="metric-value" id="m-feedback">—</div>
+        <div class="metric-note">Critic review</div>
+        <div class="metric-accent"></div>
+      </div>
+    </div>
+
+    <!-- RESULTS TABS -->
+    <section class="results-section" id="results-section" aria-labelledby="results-heading">
+      <h2 class="sr-only" id="results-heading">Mission output</h2>
+
+      <nav class="tab-nav" role="tablist" aria-label="Result panels">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-search" id="tab-search" data-tab="search">Search results</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-scraped" id="tab-scraped" data-tab="scraped">Scraped content</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-report" id="tab-report" data-tab="report">Final report</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-feedback" id="tab-feedback" data-tab="feedback">Critic feedback</button>
+      </nav>
+
+      <div id="panel-search" class="tab-panel active" role="tabpanel" aria-labelledby="tab-search">
+        <div class="empty-state" id="empty-search">
+          <div class="empty-composition" aria-hidden="true">
+            <div class="ec-outer"></div>
+            <div class="ec-inner"></div>
+            <div class="ec-accent"></div>
+          </div>
+          <div class="empty-text">
+            <div class="empty-eyebrow">Standing by</div>
+            <h3 class="empty-heading">No run<br>yet</h3>
+            <p class="empty-body">Run the pipeline to inspect search results, scraped source context, the generated report, and critic feedback.</p>
+          </div>
+        </div>
+        <div class="tab-content" id="content-search" style="display:none;"></div>
+      </div>
+
+      <div id="panel-scraped" class="tab-panel" role="tabpanel" aria-labelledby="tab-scraped">
+        <div class="tab-content" id="content-scraped"></div>
+      </div>
+
+      <div id="panel-report" class="tab-panel" role="tabpanel" aria-labelledby="tab-report">
+        <div class="tab-content" id="content-report"></div>
+        <a class="download-btn" id="download-report" download="research_report.md" style="display:none;" aria-label="Download final report as Markdown">
+          <span>↓</span> Download report
+        </a>
+      </div>
+
+      <div id="panel-feedback" class="tab-panel" role="tabpanel" aria-labelledby="tab-feedback">
+        <div class="tab-content" id="content-feedback"></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p class="footer-note" id="run-meta">Live search and scraping depend on API availability and network access.</p>
+      <p class="footer-meta">Swiss Research Dashboard</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  /* ── DOM refs ─────────────────────────────────────────────── */
+  const topicInput   = document.getElementById('topic-input');
+  const runBtn       = document.getElementById('run-btn');
+  const runBtnText   = document.getElementById('run-btn-text');
+  const statusBar    = document.getElementById('status-bar');
+  const errorBanner  = document.getElementById('error-banner');
+  const errorMsg     = document.getElementById('error-msg');
+
+  const mUrls     = document.getElementById('m-urls');
+  const mScraped  = document.getElementById('m-scraped');
+  const mReport   = document.getElementById('m-report');
+  const mFeedback = document.getElementById('m-feedback');
+  const metricEls = document.querySelectorAll('.metric');
+
+  const tabBtns   = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  const emptySearch    = document.getElementById('empty-search');
+  const contentSearch  = document.getElementById('content-search');
+  const contentScraped = document.getElementById('content-scraped');
+  const contentReport  = document.getElementById('content-report');
+  const contentFeedback= document.getElementById('content-feedback');
+  const downloadReport = document.getElementById('download-report');
+  const runMeta        = document.getElementById('run-meta');
+
+  const ssteps = [1,2,3,4].map(i => document.getElementById('sstep-' + i));
+
+  /* ── TABS ─────────────────────────────────────────────────── */
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+    });
+  });
+
+  /* ── EXAMPLES ─────────────────────────────────────────────── */
+  document.querySelectorAll('.example-item').forEach(el => {
+    el.addEventListener('click', () => {
+      topicInput.value = el.textContent.trim();
+      topicInput.focus();
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    });
+  });
+
+  /* ── MARKDOWN → HTML (lightweight) ─────────────────────────── */
+  function mdToHtml(md) {
+    if (!md || typeof md !== 'string') return '<p>No output returned.</p>';
+    return md
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+      .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`(.+?)`/g,'<code>$1</code>')
+      .replace(/^\- (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, s => '<ul>' + s + '</ul>')
+      .replace(/\n\n/g,'</p><p>')
+      .replace(/^(?!<[huolcp])(.+)$/gm, s => s ? '<p>' + s + '</p>' : s);
+  }
+
+  function countWords(text) {
+    if (!text) return 0;
+    return (text.match(/\b\w+\b/g) || []).length;
+  }
+
+  function countUrls(text) {
+    if (!text) return 0;
+    return (text.match(/https?:\/\/\S+/g) || []).length;
+  }
+
+  function formatNum(n) {
+    return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+  }
+
+  /* ── STATUS ANIMATION ─────────────────────────────────────── */
+  let stepTimer = null;
+
+  function startStatus() {
+    statusBar.classList.add('active');
+    ssteps.forEach(s => s.classList.remove('active','done'));
+    let current = 0;
+    function advance() {
+      if (current > 0) ssteps[current-1].classList.replace('active','done');
+      if (current < ssteps.length) {
+        ssteps[current].classList.add('active');
+        current++;
+        stepTimer = setTimeout(advance, 2400);
+      }
+    }
+    advance();
+  }
+
+  function stopStatus() {
+    clearTimeout(stepTimer);
+    statusBar.classList.remove('active');
+    ssteps.forEach(s => s.classList.remove('active'));
+    ssteps.forEach(s => s.classList.add('done'));
+    setTimeout(() => {
+      statusBar.classList.remove('active');
+      ssteps.forEach(s => s.classList.remove('done'));
+    }, 1000);
+  }
+
+  /* ── METRICS DISPLAY ──────────────────────────────────────── */
+  function showMetrics(result) {
+    const searchTxt  = result.search_results  || '';
+    const scrapeTxt  = result.scraped_content || '';
+    const reportTxt  = result.report          || '';
+    const feedbackTxt= result.feedback        || '';
+
+    const vals = [
+      { el: mUrls,     v: countUrls(searchTxt)   },
+      { el: mScraped,  v: countWords(scrapeTxt)   },
+      { el: mReport,   v: countWords(reportTxt)   },
+      { el: mFeedback, v: countWords(feedbackTxt) },
+    ];
+
+    vals.forEach(({ el, v }, i) => {
+      setTimeout(() => {
+        el.textContent = formatNum(v);
+        metricEls[i].classList.add('loaded');
+      }, i * 120);
+    });
+  }
+
+  /* ── CONTENT DISPLAY ──────────────────────────────────────── */
+  function showResults(result) {
+    const searchTxt   = result.search_results  || 'No search output returned.';
+    const scrapeTxt   = result.scraped_content || 'No scraped content returned.';
+    const reportTxt   = result.report          || 'No report generated.';
+    const feedbackTxt = result.feedback        || 'No feedback returned.';
+
+    emptySearch.style.display = 'none';
+    contentSearch.style.display = '';
+    contentSearch.innerHTML  = mdToHtml(searchTxt);
+    contentScraped.innerHTML = mdToHtml(scrapeTxt);
+    contentReport.innerHTML  = mdToHtml(reportTxt);
+    contentFeedback.innerHTML= mdToHtml(feedbackTxt);
+
+    const blob = new Blob([reportTxt], { type: 'text/markdown' });
+    downloadReport.href = URL.createObjectURL(blob);
+    downloadReport.style.display = '';
+
+    showMetrics(result);
+  }
+
+  /* ── RUN ──────────────────────────────────────────────────── */
+  runBtn.addEventListener('click', async () => {
+    const topic = topicInput.value.trim();
+    if (!topic) {
+      topicInput.focus();
+      topicInput.style.borderColor = 'var(--red)';
+      setTimeout(() => { topicInput.style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    runBtn.disabled = true;
+    runBtnText.textContent = 'Running pipeline…';
+    errorBanner.classList.remove('visible');
+    metricEls.forEach(m => m.classList.remove('loaded'));
+    startStatus();
+
+    try {
+      /* ── REAL API CALL ────────────────────────────────────────
+         In production this calls your Python backend.
+         Replace this URL with your Streamlit / FastAPI endpoint.
+      ── */
+      const res = await fetch('/run_pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      const result = await res.json();
+      stopStatus();
+      showResults(result);
+      const now = new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+      runMeta.textContent = `Last run: "${topic}" — Completed ${now}`;
+
+    } catch (err) {
+      stopStatus();
+      errorMsg.textContent = err.message || 'An unexpected error occurred. Check backend configuration and network access.';
+      errorBanner.classList.add('visible');
+    } finally {
+      runBtn.disabled = false;
+      runBtnText.textContent = 'Run research pipeline';
+    }
+  });
+
+  /* ── ENTER KEY IN TEXTAREA ─────────────────────────────────── */
+  topicInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runBtn.click();
+  });
+
+  /* ── DEMO / PREVIEW MODE ────────────────────────────────────
+     When opened directly in browser (no backend), inject
+     sample data so designers and stakeholders can review UI.
+  ── */
+  if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' && !window.location.port) {
+    const demoBtn = document.createElement('button');
+    demoBtn.textContent = 'Preview with demo data';
+    demoBtn.className = 'run-btn';
+    demoBtn.style.cssText = 'margin-top:0.5rem; background: var(--muted); color: var(--black); border-color: var(--black);';
+    runBtn.parentNode.insertBefore(demoBtn, runBtn.nextSibling);
+
+    demoBtn.addEventListener('click', () => {
+      topicInput.value = topicInput.value || 'AI agents in software engineering';
+      startStatus();
+      demoBtn.disabled = true;
+      demoBtn.textContent = 'Loading demo…';
+      setTimeout(() => {
+        stopStatus();
+        showResults({
+          search_results: `# Search Results\n\nFound 12 relevant sources for **AI agents in software engineering**.\n\nhttps://arxiv.org/abs/2401.01234\nhttps://openai.com/research/agents\nhttps://github.blog/2024-ai-agents\nhttps://deepmind.google/research/software-agents\n\nTop sources focus on autonomous code generation, test writing, and CI/CD integration. Key papers cite a 34% reduction in bug-fix time when using agentic pair programmers.`,
+          scraped_content: `# Scraped: "The Rise of AI Coding Agents" — arxiv.org\n\nThis survey covers 47 papers from 2022–2024 examining autonomous agents in software development pipelines. Key findings include significant productivity gains across debugging, documentation, and feature implementation tasks.\n\nAgents show strongest performance in well-specified, bounded tasks. Open-ended architecture decisions remain human-led. Multi-agent systems (planner + executor + verifier) outperform single-agent approaches by 22% on benchmark suites.`,
+          report: `# AI Agents in Software Engineering\n\n## Executive Summary\n\nAI agents are rapidly transforming software engineering workflows. This report synthesizes 12 sources covering autonomous coding, test generation, and multi-agent pipeline architectures.\n\n## Key Findings\n\n**Productivity gains are real but task-scoped.** Agents excel at bounded tasks: writing unit tests, fixing linting errors, generating boilerplate. Complex architectural decisions remain human-led.\n\n**Multi-agent pipelines outperform solo agents.** Systems pairing a planner agent with an executor and verifier show 22% better performance on standard benchmarks.\n\n**Adoption is accelerating.** 67% of Fortune 500 engineering teams report active pilots as of Q1 2024, up from 18% in Q1 2023.\n\n## Recommendations\n\n1. Pilot agents on test-writing and documentation first.\n2. Instrument all agent actions for audit and rollback.\n3. Evaluate multi-agent orchestration frameworks before single-model solutions.`,
+          feedback: `## Critic Review\n\n**Overall quality: Strong (4/5)**\n\nThe report effectively synthesises the search and scraped material. Section structure is clear and the executive summary accurately reflects the body.\n\n**Strengths**\n- Well-scoped findings that avoid overgeneralisation.\n- Concrete percentage figures improve credibility.\n- Actionable recommendations section.\n\n**Areas for improvement**\n- The report could cite specific papers by name for the 22% benchmark figure.\n- No discussion of security or supply-chain risks from autonomous agents.\n- "Adoption is accelerating" claim needs a primary source citation.\n\n**Recommendation:** Publish with minor revisions. Add one paragraph on risk considerations.`,
+        });
+        runMeta.textContent = 'Last run: "AI agents in software engineering" — Demo data';
+        demoBtn.textContent = 'Preview with demo data';
+        demoBtn.disabled = false;
+      }, 8000);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
