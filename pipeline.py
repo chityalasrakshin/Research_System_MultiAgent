@@ -1,6 +1,6 @@
 from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
 
-def run_research_pipeline(topic : str) -> dir:
+def run_research_pipeline(topic : str) -> dict:
     state = {}
     # search agent working
     print("\n" "="*50)
@@ -41,8 +41,8 @@ def run_research_pipeline(topic : str) -> dir:
     print("="*50)
 
     research_combined = (
-        f"SEARCH RESULTS : \n {state['search_result']} \n\n"
-        f"DETAILED SCRAPED CONTENT : \n {state["scraped_content"]}" 
+        f"SEARCH RESULTS : \n {state['search_results']} \n\n"
+        f"DETAILED SCRAPED CONTENT : \n {state['scraped_content']}" 
     )
 
     state["report"] = writer_chain.invoke({

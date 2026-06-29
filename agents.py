@@ -14,7 +14,12 @@ llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0)
 def build_search_agent():
     return create_agent(
         model = llm,
-        tools = [web_search]
+        tools = [web_search],
+        system_prompt=(
+            "You are a research search agent. Use the web_search tool exactly once with "
+            "a short, complete plain-text search query. Do not include commentary inside "
+            "tool arguments. After the tool returns, summarize the results and include URLs."
+        )
     )
 
 # 2nd agent
@@ -22,7 +27,12 @@ def build_search_agent():
 def build_reader_agent():
     return create_agent(
         model = llm,
-        tools = [scrape_url]
+        tools = [scrape_url],
+        system_prompt=(
+            "You are a research reader agent. Choose one URL from the user's search "
+            "results and call scrape_url exactly once with only that URL string. After "
+            "the tool returns, summarize the useful content."
+        )
     )
 
 #writer chain
