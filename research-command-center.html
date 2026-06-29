@@ -144,22 +144,6 @@
     line-height: 1.4;
   }
 
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .run-cmd {
-    font-size: 0.65rem;
-    font-family: 'Courier New', monospace;
-    color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.05);
-    padding: 8px 12px;
-    display: block;
-    letter-spacing: 0.04em;
-  }
-
   /* ─── MAIN ───────────────────────────────────────────────────────── */
   .main {
     display: flex;
@@ -851,45 +835,22 @@
         <div class="logo-square" aria-hidden="true"></div>
         <span class="logo-text">Research<br>Center</span>
       </div>
-      <div class="logo-sub">Multi-agent pipeline</div>
+      <div class="logo-sub">Built by Srakshin</div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Pipeline stages</div>
-      <div class="pipeline-step">
-        <span class="step-num">01</span>
-        <div class="step-info">
-          <div class="step-name">Search Agent</div>
-          <div class="step-desc">Finds recent, reliable sources and URLs</div>
-        </div>
-      </div>
-      <div class="pipeline-step">
-        <span class="step-num">02</span>
-        <div class="step-info">
-          <div class="step-name">Reader Agent</div>
-          <div class="step-desc">Scrapes the strongest source for deeper context</div>
-        </div>
-      </div>
-      <div class="pipeline-step">
-        <span class="step-num">03</span>
-        <div class="step-info">
-          <div class="step-name">Writer</div>
-          <div class="step-desc">Synthesizes findings into a structured report</div>
-        </div>
-      </div>
-      <div class="pipeline-step">
-        <span class="step-num">04</span>
-        <div class="step-info">
-          <div class="step-name">Critic</div>
-          <div class="step-desc">Reviews the report and returns quality feedback</div>
-        </div>
+      <div class="sidebar-label">About the creator</div>
+      <div style="padding: 0.5rem 0; font-size: 0.72rem; line-height: 1.6; color: rgba(255,255,255,0.45);">
+        <strong style="color: #fff;">Chityala Srakshin</strong>
+        <br><br>
+        <a href="https://github.com/chityalasrakshin" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600;">GitHub ↗</a>
+        &nbsp;·&nbsp;
+        <a href="https://linkedin.com/in/srakshin" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600;">LinkedIn ↗</a>
+        &nbsp;·&nbsp;
+        <a href="https://srakshin.vercel.app" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600;">Portfolio ↗</a>
       </div>
     </div>
 
-    <div class="sidebar-footer">
-      <div class="sidebar-label" style="margin-bottom: 0.5rem;">Local run</div>
-      <code class="run-cmd">uvicorn app:app --reload --port 8000</code>
-    </div>
   </aside>
 
   <!-- MAIN -->
