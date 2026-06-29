@@ -8,6 +8,6 @@ def run_research_pipeline(topic : str) -> dir:
     print("="*50)
 
     search_agent = build_search_agent()
-    search_agent.invoke({
+    search_result = search_agent.invoke({
         "messages" : [("user", f"Find recent, reliable and detailed information about: {topic}")]
     })
