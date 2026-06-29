@@ -53,3 +53,12 @@ def run_research_pipeline(topic : str) -> dir:
     print("\n Final Report\n", state["report"])
 
     #critic report
+    print("\n"+" ="*50)
+    print("step 4 - critic is reviewing the report ")
+    print("="*50)
+
+    state["feedback"] = critic_chain.invoke({
+        "report":state["report"]
+    })
+
+    print("\n critic report \n", state["feedback"])
