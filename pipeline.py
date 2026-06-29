@@ -62,3 +62,5 @@ def run_research_pipeline(topic : str) -> dir:
     })
 
     print("\n critic report \n", state["feedback"])
+
+    return state
