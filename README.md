@@ -1,91 +1,92 @@
 # Research Command Center
 
-**Autonomous Multi-Agent Research Pipeline — Search, Synthesise, Scrutinise.**
+**AI-powered research tool that searches the web, reads sources, writes reports, and checks its own work.**
 
 ---
 
-## Architectural Overview
+## Screenshot
+
+![](image.png)
+
+*The research command center in action.*
+
+---
+
+## How It Works
+
+The system uses four AI agents that work one after another:
+
+```
+Search → Read → Write → Review
+```
+
+### 1. Search Agent
+Searches the web using the **Tavily** API to find the best sources on any topic.
+
+### 2. Reader Agent
+Opens the most relevant link, reads the content, and cleans it up for the next step.
+
+### 3. Writer
+Takes everything found and writes a well-structured research report with key findings and sources.
+
+### 4. Critic
+Reviews the report, scores it out of 10, and suggests what could be better.
+
+---
+
+## Architecture
 
 ![](DeepResearch.png)
 
-The system orchestrates a cascading quartet of specialised LLM-driven agents, each responsible for a discrete phase of the research lifecycle. The architecture follows a strict sequential pipeline paradigm: output from each stage becomes the contextual substrate for the subsequent stage, ensuring epistemic continuity from raw web retrieval to critical appraisal.
-
-```
-Web Search ──► Source Reading ──► Report Synthesis ──► Critical Review
-```
-
 ---
 
-## Pipeline Taxonomy
+## Tech Stack
 
-### Stage I — Search Agent
-Executes synchronous information retrieval via the **Tavily** search API. The agent operatively constructs a targeted query, harvests the top-N results with accompanying snippets and provenance URLs, and returns a structured corpus of source material. This stage establishes the epistemological foundation for all downstream reasoning.
-
-### Stage II — Reader Agent
-Performs deep-content extraction by selecting the most salient URL from the search corpus and executing an HTTP GET request with subsequent HTML parsing via **BeautifulSoup**. Irrelevant structural elements (scripts, stylesheets, navigation artefacts) are excised, yielding sanitised, machine-readable textual content truncated to a manageable window for LLM consumption.
-
-### Stage III — Writer
-A prompt-chained LLM invocation that ingests both the search corpus and the scraped content, then procedurally generates a comprehensive research report. The output is structured into an executive summary, granular key findings with evidentiary support, a conclusion synthesising insights, and a cited source index.
-
-### Stage IV — Critic
-Performs a rigorous meta-evaluation of the generated report against quality heuristics. Returns a quantitative score (X/10), enumerated strengths, actionable improvement vectors, and a one-line verdict — operationalising a closed feedback loop within the pipeline.
-
----
-
-## Technology Stack
-
-| Layer | Specification |
+| Layer | What it uses |
 |---|---|
-| **Orchestration** | LangGraph / LangChain Agent Framework |
-| **LLM Backbone** | Groq-hosted LLaMA 3.1 (8B) — sub-100ms inference |
-| **Retrieval** | Tavily Search API (real-time web corpus) |
-| **Extraction** | BeautifulSoup 4 + lxml HTML parser |
-| **Serving** | FastAPI (async) + Uvicorn |
-| **Frontend** | Single-page HTML/CSS/JS — brutalism-inspired design system |
-| **Serialisation** | Pydantic v2 (strict schema enforcement) |
+| **Framework** | LangGraph / LangChain |
+| **AI Model** | LLaMA 3.1 (8B) via Groq |
+| **Web Search** | Tavily API |
+| **Content Extraction** | BeautifulSoup + lxml |
+| **Backend** | FastAPI + Uvicorn |
+| **Frontend** | Plain HTML/CSS/JS |
+| **Data Validation** | Pydantic v2 |
 
 ---
 
-## Live Deployment
+## Live Demo
 
-🌐 [**research-system-multiagent.onrender.com**](https://research-system-multiagent.onrender.com/) — Fully hosted instance of the Research Command Center. Submit a topic and observe the four-stage pipeline execute in real time.
+🌐 [**research-system-multiagent.onrender.com**](https://research-system-multiagent.onrender.com/) — Try it live. Enter a topic and watch the AI pipeline work in real time.
 
 ---
 
-## Local Deployment
+## Run Locally
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/chityalasrakshin/research-command-center
 cd research-command-center
-
-# 2. Install dependencies
 pip install -r requirements.txt
-
-# 3. Configure environment variables
 cp .env.example .env
-# Populate TAVILY_API_KEY and GROQ_API_KEY in .env
-
-# 4. Initialise the server
+# Add your TAVILY_API_KEY and GROQ_API_KEY to .env
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-
-# 5. Navigate to http://localhost:8000
 ```
 
+Then open **http://localhost:8000** in your browser.
+
 ---
 
-## Environment Configuration
+## Environment Variables
 
-| Variable | Description |
+| Variable | What it's for |
 |---|---|
-| `TAVILY_API_KEY` | Authentication token for Tavily web search |
-| `GROQ_API_KEY` | Authentication token for Groq LLM inference |
+| `TAVILY_API_KEY` | API key for Tavily web search |
+| `GROQ_API_KEY` | API key for Groq LLM access |
 
 ---
 
-## About the Creator
+## About
 
-**Chityala Srakshin** — 5x hackathon laureate, building at the confluence of agentic AI, machine learning, and large-scale data systems. CS undergraduate at GRIET, Hyderabad.
+Built by **Chityala Srakshin** — 5x hackathon winner, building at the intersection of AI, ML, and data systems. CS student at GRIET, Hyderabad.
 
 [GitHub](https://github.com/chityalasrakshin) · [LinkedIn](https://linkedin.com/in/srakshin) · [Portfolio](https://srakshin.vercel.app)
 
