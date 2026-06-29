@@ -46,6 +46,12 @@ Performs a rigorous meta-evaluation of the generated report against quality heur
 
 ---
 
+## Live Deployment
+
+🌐 [**research-system-multiagent.onrender.com**](https://research-system-multiagent.onrender.com/) — Fully hosted instance of the Research Command Center. Submit a topic and observe the four-stage pipeline execute in real time.
+
+---
+
 ## Local Deployment
 
 ```bash
